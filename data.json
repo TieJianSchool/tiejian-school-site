@@ -1,0 +1,23 @@
+{
+  "schoolName": "铁肩学校九年一贯制通知中心",
+  "wechatUrl": "https://mp.weixin.qq.com/s/p3SkXSXjOEGkO-7pYE_ryg",
+  "homework": {
+    "一年级": { "语文": "", "数学": "" },
+    "三年级": { "语文": "", "数学": "", "英语": "" },
+    "2301班": { "语文": "", "数学": "", "英语": "", "物理": "", "化学": "" }
+  },
+  "schedule": [
+    { "time": "周一", "event": "升旗仪式", "department": "德育处", "location": "操场" }
+  ],
+  "reminders": ["放学后请检查门窗水电"],
+  "routine": [
+    { "time": "07:50", "event": "早读" },
+    { "time": "08:10", "event": "下早读" }
+  ],
+  "courseTable": {
+    "headers": ["周一","周二","周三","周四","周五"],
+    "rows": [
+      { "period": "第一节", "courses": ["语文","数学","英语","物理","化学"] }
+    ]
+  }
+}
