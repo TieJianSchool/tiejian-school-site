@@ -58,6 +58,11 @@ body{font-family:"Microsoft YaHei",sans-serif;background:#f0f2f5;color:#222;}
 .course-table th,.course-table td{border:1px solid #ddd;padding:6px;text-align:center;}
 .course-table th{background:#1a73e8;color:#fff;}
 
+/* 课程表班级选择器 */
+.class-selector{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;}
+.class-selector .nav-tab{padding:7px 14px;font-size:13px;}
+.group-label{font-size:12px;color:#999;padding:4px 0;width:100%;}
+
 footer{text-align:center;padding:18px 0;color:#777;font-size:13px;margin-top:20px;}
 @keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
 </style>
@@ -117,6 +122,7 @@ footer{text-align:center;padding:18px 0;color:#777;font-size:13px;margin-top:20p
     </div>
     <div class="time-card">
       <h3>📚 课程表</h3>
+      <div class="class-selector" id="classSelector"></div>
       <div class="course-table" id="courseTable"></div>
     </div>
   </section>
@@ -129,6 +135,7 @@ footer{text-align:center;padding:18px 0;color:#777;font-size:13px;margin-top:20p
 <script src="data.js"></script>
 <script>
 let data = window.__SCHOOL_DATA__;
+let currentClass = null;
 
 function showSection(id){
   document.querySelectorAll('.content-section').forEach(s=>s.classList.remove('active'));
@@ -143,9 +150,10 @@ function goWechat(){
 
 function render(){
   document.getElementById('siteTitle').textContent = data.schoolName;
-  document.getElementById('footerText').textContent = `© ${new Date().getFullYear()} ${data.schoolName}`;
+  document.getElementById('footerText').textContent = '© ' + new Date().getFullYear() + ' ' + data.schoolName;
 
   // 作业
+  let allClasses = {...data.classes.primary.map(c=>({name:c,type:'primary'})),...data.classes.junior.grade7.map(c=>({name:c,type:'junior'})),...data.classes.junior.grade8.map(c=>({name:c,type:'junior'})),...data.classes.junior.grade9.map(c=>({name:c,type:'junior'}))};
   document.getElementById('gradeGrid').innerHTML =
     Object.entries(data.homework).map(([g,sub])=>`
       <div class="grade-card">
@@ -177,17 +185,66 @@ function render(){
     `).join('');
 
   // 课程表
-  document.getElementById('courseTable').innerHTML = `
+  renderCourseTable();
+}
+
+function renderCourseTable(){
+  const ct = data.courseTable;
+  const sel = document.getElementById('classSelector');
+  const tbl = document.getElementById('courseTable');
+
+  // 构建所有班级按钮（小学 + 初中分组）
+  let buttons = '';
+
+  // 小学部
+  buttons += '<div class="group-label">小学部</div>';
+  data.classes.primary.forEach(c=>{
+    buttons += `<button class="nav-tab ${c===currentClass?'active':''}" onclick="selectClass('${c}')">${c}</button>`;
+  });
+
+  // 初中部
+  buttons += '<div class="group-label" style="margin-top:8px;">初中部</div>';
+  data.classes.junior.grade7.forEach(c=>{
+    buttons += `<button class="nav-tab ${c===currentClass?'active':''}" onclick="selectClass('${c}')">初一${c}</button>`;
+  });
+  data.classes.junior.grade8.forEach(c=>{
+    buttons += `<button class="nav-tab ${c===currentClass?'active':''}" onclick="selectClass('${c}')">初二${c}</button>`;
+  });
+  data.classes.junior.grade9.forEach(c=>{
+    buttons += `<button class="nav-tab ${c===currentClass?'active':''}" onclick="selectClass('${c}')">初三${c}</button>`;
+  });
+
+  sel.innerHTML = buttons;
+
+  // 默认选第一个小学班
+  if(!currentClass){
+    currentClass = data.classes.primary[0];
+  }
+
+  // 找数据
+  let rows = ct[currentClass];
+  if(!rows){
+    tbl.innerHTML = '<p style="color:#999;padding:12px;">暂无课程表数据</p>';
+    return;
+  }
+
+  tbl.innerHTML = `
     <table>
-      <tr><th>节次</th>${data.courseTable.headers.map(h=>`<th>${h}</th>`).join('')}</tr>
-      ${data.courseTable.rows.map(r=>`
+      <tr><th>节次</th>${ct.headers.map(h=>`<th>${h}</th>`).join('')}</tr>
+      ${rows.map(r=>`
         <tr><td>${r.period}</td>${r.courses.map(c=>`<td>${c}</td>`).join('')}</tr>
       `).join('')}
     </table>
   `;
 }
 
+function selectClass(name){
+  currentClass = name;
+  renderCourseTable();
+}
+
 render();
 </script>
 </body>
 </html>
+
